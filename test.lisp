@@ -58,13 +58,12 @@
 ;; generic UNDO
 
 (defun undo.last.command ()
-  (let ((prev.command.id (- 0 1)))
-    (cond ((>= *current.command.id* 0)
-	   (let ((prev.command (nth *current.command.id* *commands*)))
-	     (undo prev.command)
-	     (decf *current.command.id*)))
-	  (t
-	   (format t "Nothing to Undo")))))
+  (cond ((>= *current.command.id* 0)
+	 (let ((prev.command (nth *current.command.id* *commands*)))
+	   (undo prev.command)
+	   (decf *current.command.id*)))
+	(t
+	 (format t "Nothing to Undo"))))
 
 (defun reset.state ()
   (setf *nr.of.jumps* 0)
@@ -81,8 +80,6 @@
     (format t "Nr of shots: ~a~%" *nr.of.shots*)
 
     (perform.jump)
-
-    ;;(ide::trace-format)
     
     (format t "Nr of jumps: ~a~%" *nr.of.jumps*)
     (format t "Nr of shots: ~a~%" *nr.of.shots*)
@@ -109,6 +106,5 @@
 
     (undo.last.command) ;; undo another jump
 
-    (undo.last.command) ;; nothing to undo
-    
-    ))
+     ;; nothing to undo
+    (undo.last.command)))
