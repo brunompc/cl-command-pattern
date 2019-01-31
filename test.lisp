@@ -6,9 +6,19 @@
 (defvar *nr.of.jumps* 0)
 (defvar *nr.of.shots* 0)
 
+;; command pattern state control
 (defvar *commands* nil)
-
 (defvar *current.command.id* 0)
+
+;; state clean-up
+
+(defun reset.state ()
+  (setf *nr.of.jumps* 0)
+  (setf *nr.of.shots* 0)
+  (setf *commands* nil)
+  (setf *current.command.id* -1))
+
+;; abstract command
 
 (defclass command ()
   ())
@@ -63,14 +73,19 @@
 	   (undo prev.command)
 	   (decf *current.command.id*)))
 	(t
-	 (format t "Nothing to Undo"))))
+	 (format t "Nothing to Undo~%"))))
 
-(defun reset.state ()
-  (setf *nr.of.jumps* 0)
-  (setf *nr.of.shots* 0)
-  (setf *commands* nil)
-  (setf *current.command.id* -1))
+;; generic REDO
 
+(defun redo.command ()
+  (cond ((< *current.command.id* (- (length *commands*) 1))
+	 (let ((next.command (nth (+ *current.command.id* 1) *commands*)))
+	   (execute next.command)
+	   (incf *current.command.id*)))
+	(t
+	 (format t "Nothing to Redo~%"))))
+
+;; demonstration
 
 (defun demo ()
   (reset.state)
@@ -106,5 +121,23 @@
 
     (undo.last.command) ;; undo another jump
 
-     ;; nothing to undo
-    (undo.last.command)))
+    (format t "Nr of jumps: ~a~%" *nr.of.jumps*)
+    (format t "Nr of shots: ~a~%" *nr.of.shots*)
+    
+    ;; nothing to undo
+    (undo.last.command)
+    
+    (redo.command) ;; redo the previously undone jump
+
+    (format t "Nr of jumps: ~a~%" *nr.of.jumps*)
+    (format t "Nr of shots: ~a~%" *nr.of.shots*)
+
+    (undo.last.command)
+
+    (format t "Nr of jumps: ~a~%" *nr.of.jumps*)
+    (format t "Nr of shots: ~a~%" *nr.of.shots*)
+    
+    ;; nothing to undo
+    (undo.last.command)
+    
+    ))
